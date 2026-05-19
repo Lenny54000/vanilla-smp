@@ -318,6 +318,418 @@
 
         <div class="rules-section">
             <h2>🔧 Fonctionnalités clés</h2>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanilla SMP - Serveur Minecraft</title>
+    <style>
+        :root {
+            --bg-color: #0f1115;
+            --card-bg: #161920;
+            --card-hover: #1e222b;
+            --accent-color: #4caf50; 
+            --accent-glow: rgba(76, 175, 80, 0.2);
+            --accent-hover: #66bb6a;
+            --blue-btn: #00bcd4;
+            --blue-glow: rgba(0, 188, 212, 0.2);
+            --blue-btn-hover: #26c6da;
+            --text-color: #e0e6ed;
+            --text-muted: #8892b0;
+            --danger: #ff5252;
+            --warning: #ff9800;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.6;
+        }
+
+        header {
+            text-align: center;
+            padding: 100px 20px;
+            background: linear-gradient(rgba(15, 17, 21, 0.75), rgba(15, 17, 21, 0.95)), 
+                        url('https://www.minecraft.net/content/dam/games/minecraft/key-art/Vanilla-Pillager-Updates_Header.jpg') center/cover no-repeat;
+            width: 100%;
+            box-sizing: border-box;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 3px;
+            background: var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color);
+            border-radius: 2px;
+        }
+
+        header h1 {
+            font-size: 4rem;
+            margin: 0 0 15px 0;
+            color: #ffffff;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            font-weight: 600;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; text-shadow: 0 0 10px var(--accent-glow); }
+            100% { opacity: 0.8; }
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            padding: 50px 20px;
+            box-sizing: border-box;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            background-color: var(--card-hover);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #ffffff;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card p {
+            margin: 5px 0;
+            color: var(--text-muted);
+        }
+
+        .card strong {
+            color: #ffffff;
+        }
+
+        /* Box IP interactive */
+        .ip-wrapper {
+            position: relative;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .ip-box {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 14px;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Consolas', monospace;
+            font-size: 0.95rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .ip-box:hover {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .copy-toast {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background-color: var(--accent-color);
+            color: #000;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            pointer-events: none;
+            box-shadow: 0 5px 15px var(--accent-glow);
+            z-index: 10;
+        }
+
+        .copy-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Bouton Seed */
+        .seed-box {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Consolas', monospace;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: block;
+            margin-top: 15px;
+            color: var(--blue-btn);
+            font-weight: bold;
+        }
+
+        .seed-box:hover {
+            background-color: rgba(0, 188, 212, 0.1);
+            border-color: var(--blue-btn);
+            box-shadow: 0 0 10px var(--blue-glow);
+        }
+
+        /* Fenêtre Modal (Pop-up Seed) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background-color: var(--card-bg);
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-sizing: border-box;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal h3 {
+            margin-top: 0;
+            color: #fff;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .modal p {
+            color: var(--blue-btn);
+            font-size: 1rem;
+            margin-bottom: 25px;
+            font-family: 'Consolas', monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-weight: bold;
+        }
+
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-copy { background-color: var(--accent-color); color: #000; }
+        .btn-copy:hover { background-color: var(--accent-hover); transform: translateY(-2px); }
+
+        .btn-link { background-color: var(--blue-btn); color: #000; }
+        .btn-link:hover { background-color: var(--blue-btn-hover); transform: translateY(-2px); }
+
+        .btn-close {
+            background-color: transparent;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 10px;
+            box-shadow: none;
+        }
+        .btn-close:hover { color: #fff; }
+
+        /* Sections de règles */
+        .rules-section {
+            background-color: var(--card-bg);
+            padding: 35px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .rules-section h2 { 
+            color: #ffffff; 
+            margin-top: 0; 
+            font-size: 1.6rem;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 15px;
+        }
+        
+        .rules-section.spawn-rule h2 {
+            border-left-color: var(--warning);
+        }
+
+        ul { padding-left: 20px; }
+        li { margin-bottom: 15px; line-height: 1.7; color: var(--text-color); }
+        
+        .badge-allowed { 
+            background: rgba(76, 175, 80, 0.15); 
+            color: #81c784; 
+            padding: 2px 8px; 
+            border-radius: 4px; 
+            font-weight: bold; 
+            font-size: 0.9rem;
+        }
+        .badge-forbidden { 
+            background: rgba(244, 67, 54, 0.15); 
+            color: #e57373; 
+            padding: 2px 8px; 
+            border-radius: 4px; 
+            font-weight: bold; 
+            font-size: 0.9rem;
+        }
+        
+        strong { color: #fff; }
+
+        footer { 
+            text-align: center; 
+            padding: 40px 20px; 
+            color: var(--text-muted); 
+            font-size: 0.85rem; 
+            width: 100%;
+            border-top: 1px solid rgba(255, 255, 255, 0.02);
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Vanilla SMP</h1>
+        <p>🚀 Ouverture prochaine ! Préparez-vous 👀</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="info-grid">
+            <div class="card">
+                <h3>📌 Connexion</h3>
+                <p>Clique sur l'adresse pour copier :</p>
+                <div class="ip-wrapper">
+                    <div class="copy-toast" id="copy-toast">IP Copiée !</div>
+                    <div class="ip-box" id="ip-address" onclick="copyIP()">Vanilla_SMP_.aternos.me:40012</div>
+                </div>
+            </div>
+            <div class="card">
+                <h3>⚙️ Configuration</h3>
+                <p><strong>Version :</strong> 1.21.1</p>
+                <p><strong>Crack :</strong> Accepté 🟢</p>
+                <p><strong>Seed du monde :</strong></p>
+                <div class="seed-box" onclick="openSeedModal()">-2321458763595462521 🌐</div>
+            </div>
+            <div class="card">
+                <h3>🌍 Le Monde</h3>
+                <p><strong>WorldBorder :</strong> Rayon de 3000 blocs</p>
+                <p><strong>Style :</strong> Semi-Anarchie</p>
+            </div>
+        </div>
+
+        <div class="rules-section">
+            <h2>⚔️ Style du serveur & Règles</h2>
+            <p>Le serveur est en semi-anarchie. Cela signifie une grande liberté, mais avec quelques limites pour éviter le chaos total :</p>
+            <ul>
+                <li><span class="badge-allowed">[AUTORISÉ]</span> Le PvP, le pillage et les pièges (traps).</li>
+                <li><span class="badge-allowed">[AUTORISÉ]</span> Pas de système d'économie artificielle ou de protections de claims.</li>
+                <li><span class="badge-forbidden">[INTERDIT]</span> Les cheats, hacks et clients modifiés malveillants.</li>
+            </ul>
+        </div>
+
+        <div class="rules-section spawn-rule">
+            <h2 style="color: #ffb74d;">🏠 Règle spéciale du Spawn</h2>
+            <p>Si vous décidez de vous installer et de construire une base proche du spawn initial :</p>
+            <ul>
+                <li><span class="badge-forbidden">❌ Interdiction absolue</span> de la détruire (grief) ou de la piller.</li>
+                <li><span class="badge-allowed">✅ En échange</span>, votre base doit être une vraie construction travaillée, esthétique et propre (pas de cube en terre ou d'abri temporaire).</li>
+            </ul>
+            <p style="margin-bottom: 0; color: var(--text-muted);"><em>Le but est de garder un spawn vivant et visuellement accueillant tout en laissant une anarchie totale partout ailleurs.</em></p>
+        </div>
+
+        <div class="rules-section">
+            <h2>🔧 Fonctionnalités clés</h2>
             <ul>
                 <li>💀 <strong>Têtes de joueurs :</strong> Elles dropent à coup sûr lors d'un kill en PvP.</li>
                 <li>🎤 <strong>Voice Chat :</strong> Proximité activée pour parler directement en jeu.</li>
@@ -346,6 +758,31 @@
     <script>
         function copyIP() {
             const ipText = document.getElementById('ip-address').innerText;
+            navigator.clipboard.writeText(ipText).then(() => {
+                const toast = document.getElementById('copy-toast');
+                toast.classList.add('show');
+                setTimeout(() => { toast.classList.remove('show'); }, 2000);
+            }).catch(err => { console.error("Erreur de copie IP : ", err); });
+        }
+
+        function openSeedModal() { document.getElementById('seed-modal-overlay').classList.add('active'); }
+        function closeSeedModal(event, force=false) {
+            if(force || (event && event.target.classList.contains('modal-overlay'))) {
+                document.getElementById('seed-modal-overlay').classList.remove('active');
+            }
+        }
+
+        function copySeed() {
+            const seedText = document.getElementById('seed-value').innerText;
+            navigator.clipboard.writeText(seedText).then(() => {
+                alert("Seed copiée !");
+                document.getElementById('seed-modal-overlay').classList.remove('active');
+            }).catch(err => { console.error("Erreur de copie Seed : ", err); });
+        }
+    </script>
+</body>
+</html>
+pText = document.getElementById('ip-address').innerText;
             navigator.clipboard.writeText(ipText).then(() => {
                 const toast = document.getElementById('copy-toast');
                 toast.classList.add('show');
